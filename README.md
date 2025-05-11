@@ -95,14 +95,6 @@ npm install
 # Run the development server
 npm start
 ```
----
-
-
-
-This project is licensed under the **MIT License**.  
-Feel free to use, modify, and distribute with proper attribution.
-
----
 
 ## 🙋‍♂️ Author
 
@@ -112,6 +104,6 @@ Feel free to use, modify, and distribute with proper attribution.
 ---
 ## Live Link
 
-https://website-builder.netlify.app/
+[website-builder]https://website-builder.netlify.app/
 
 ---
