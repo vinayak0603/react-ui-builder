@@ -104,6 +104,6 @@ npm start
 ---
 ## Live Link
 
-[website-builder]https://website-builder.netlify.app/
+[website-builder](https://website-builder.netlify.app/)
 
 ---
