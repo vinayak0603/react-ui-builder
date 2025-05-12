@@ -75,7 +75,7 @@ src/
 ## 📹 Demo Video
 
 🎬 **Watch the walkthrough video of the project:**  
-👉 [Click here to watch](https://your-video-link.com)  
+👉 [Click here to watch](https://drive.google.com/file/d/1FbUggsASb702MXke7gvkFnp7w_ST6CQv/view)  
 ---
 
 ## 🖥️ Getting Started
