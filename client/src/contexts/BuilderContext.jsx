@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useCallback } from "react";
 import { v4 as uuidv4 } from "uuid";
 
@@ -10,7 +9,7 @@ const getDefaultElementProps = (type, position) => {
   const baseProps = {
     id: uuidv4(),
     type,
-    position,
+    position: position || { x: 100, y: 100 },
     style: {},
   };
 
@@ -51,7 +50,11 @@ const getDefaultElementProps = (type, position) => {
         },
       };
     default:
-      return { ...baseProps, content: "", size: { width: "100px", height: "100px" } };
+      return {
+        ...baseProps,
+        content: "",
+        size: { width: "100px", height: "100px" },
+      };
   }
 };
 
@@ -73,13 +76,13 @@ export const BuilderProvider = ({ children }) => {
     setCurrentPageId(newPage.id);
   }, []);
 
-  const addElement = useCallback((type) => {
+  // 🔥 Updated to accept optional position
+  const addElement = useCallback((type, position = { x: 100, y: 100 }) => {
+    const newElement = getDefaultElementProps(type, position);
+
     setPages((prevPages) =>
       prevPages.map((page) => {
         if (page.id === currentPageId) {
-          // Position in the center of the canvas
-          const position = { x: 100, y: 100 };
-          const newElement = getDefaultElementProps(type, position);
           return {
             ...page,
             elements: [...page.elements, newElement],
@@ -90,64 +93,74 @@ export const BuilderProvider = ({ children }) => {
     );
   }, [currentPageId]);
 
-  const updateElement = useCallback((id, updates) => {
-    setPages((prevPages) =>
-      prevPages.map((page) => {
-        if (page.id === currentPageId) {
-          return {
-            ...page,
-            elements: page.elements.map((element) =>
-              element.id === id ? { ...element, ...updates } : element
-            ),
-          };
-        }
-        return page;
-      })
-    );
+  const updateElement = useCallback(
+    (id, updates) => {
+      setPages((prevPages) =>
+        prevPages.map((page) => {
+          if (page.id === currentPageId) {
+            return {
+              ...page,
+              elements: page.elements.map((element) =>
+                element.id === id ? { ...element, ...updates } : element
+              ),
+            };
+          }
+          return page;
+        })
+      );
 
-    // Update selected element if it's currently selected
-    if (selectedElement?.id === id) {
-      setSelectedElement((prev) => (prev ? { ...prev, ...updates } : null));
-    }
-  }, [currentPageId, selectedElement]);
+      if (selectedElement?.id === id) {
+        setSelectedElement((prev) => (prev ? { ...prev, ...updates } : null));
+      }
+    },
+    [currentPageId, selectedElement]
+  );
 
-  const moveElement = useCallback((id, position) => {
-    updateElement(id, { position });
-  }, [updateElement]);
+  const moveElement = useCallback(
+    (id, position) => {
+      updateElement(id, { position });
+    },
+    [updateElement]
+  );
 
-  const selectElement = useCallback((id) => {
-    if (!id) {
-      setSelectedElement(null);
-      return;
-    }
+  const selectElement = useCallback(
+    (id) => {
+      if (!id) {
+        setSelectedElement(null);
+        return;
+      }
 
-    const currentPage = getCurrentPage();
-    if (!currentPage) return;
+      const currentPage = getCurrentPage();
+      if (!currentPage) return;
 
-    const element = currentPage.elements.find((el) => el.id === id);
-    if (element) {
-      setSelectedElement(element);
-    }
-  }, [getCurrentPage]);
+      const element = currentPage.elements.find((el) => el.id === id);
+      if (element) {
+        setSelectedElement(element);
+      }
+    },
+    [getCurrentPage]
+  );
 
-  const deleteElement = useCallback((id) => {
-    setPages((prevPages) =>
-      prevPages.map((page) => {
-        if (page.id === currentPageId) {
-          return {
-            ...page,
-            elements: page.elements.filter((element) => element.id !== id),
-          };
-        }
-        return page;
-      })
-    );
-    
-    // If the deleted element was selected, deselect it
-    if (selectedElement?.id === id) {
-      setSelectedElement(null);
-    }
-  }, [currentPageId, selectedElement]);
+  const deleteElement = useCallback(
+    (id) => {
+      setPages((prevPages) =>
+        prevPages.map((page) => {
+          if (page.id === currentPageId) {
+            return {
+              ...page,
+              elements: page.elements.filter((element) => element.id !== id),
+            };
+          }
+          return page;
+        })
+      );
+
+      if (selectedElement?.id === id) {
+        setSelectedElement(null);
+      }
+    },
+    [currentPageId, selectedElement]
+  );
 
   const setCurrentPage = useCallback((pageId) => {
     setCurrentPageId(pageId);

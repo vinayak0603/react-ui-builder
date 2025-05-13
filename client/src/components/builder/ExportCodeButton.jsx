@@ -1,4 +1,3 @@
-//import React from "react";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
 import { useBuilder } from "@/contexts/BuilderContext";
@@ -6,6 +5,8 @@ import { Button } from "@/components/ui/button";
 
 const ExportCodeButton = () => {
   const { pages } = useBuilder();
+  const CANVAS_WIDTH = 1024;
+  const CANVAS_HEIGHT = 600;
 
   const generateNavbarHTML = (currentPageName) => {
     return `
@@ -86,6 +87,15 @@ body {
 .navbar-space {
   height: 60px;
 }
+
+.output-canvas {
+  position: relative;
+  width: 100%;
+  height: 100vh; /* instead of calc(100vh - 60px) */
+  background-color: #f3f4f6;
+  overflow: hidden;
+}
+
     `.trim();
   };
 
@@ -93,16 +103,34 @@ body {
     const navbar = generateNavbarHTML(page.name);
     const elementsHtml = page.elements
       .map((element) => {
-        const style = Object.entries(element.style || {})
-          .map(([key, value]) => `${key}: ${value}`)
-          .join("; ");
+        const styleEntries = Object.entries(element.style || {});
+        const style = styleEntries.map(([key, value]) => `${key}: ${value}`).join("; ");
+
+        const percentLeft = (element.position.x / CANVAS_WIDTH) * 100;
+        const percentTop = (element.position.y / CANVAS_HEIGHT) * 100;
+
+        const percentWidth = element.size?.width
+          ? (parseInt(element.size.width) / CANVAS_WIDTH) * 100
+          : null;
+        const percentHeight = element.size?.height
+          ? (parseInt(element.size.height) / CANVAS_HEIGHT) * 100
+          : null;
+
+        const positionStyles = `
+          position: absolute;
+          left: ${percentLeft}%;
+          top: ${percentTop}%;
+          ${percentWidth !== null ? `width: ${percentWidth}%;` : ""}
+          ${percentHeight !== null ? `height: ${percentHeight}%;` : ""}
+        `;
+
         switch (element.type) {
           case "text":
-            return `<div style="${style}; position: absolute; left: ${element.position.x}px; top: ${element.position.y}px;">${element.content}</div>`;
+            return `<div style="${style}; ${positionStyles}">${element.content}</div>`;
           case "image":
-            return `<img src="${element.content}" style="${style}; width: ${element.size.width}; height: ${element.size.height}; position: absolute; left: ${element.position.x}px; top: ${element.position.y}px;" />`;
+            return `<img src="${element.content}" style="${style}; ${positionStyles}" />`;
           case "button":
-            return `<button style="${style}; width: ${element.size.width}; height: ${element.size.height}; position: absolute; left: ${element.position.x}px; top: ${element.position.y}px;">${element.content}</button>`;
+            return `<button style="${style}; ${positionStyles}">${element.content}</button>`;
           default:
             return "";
         }
@@ -120,7 +148,9 @@ body {
 </head>
 <body>
   ${navbar}
-  ${elementsHtml}
+  <div class="output-canvas">
+    ${elementsHtml}
+  </div>
 </body>
 </html>
     `.trim();
