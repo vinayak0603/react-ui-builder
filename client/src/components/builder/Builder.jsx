@@ -5,6 +5,7 @@ import PropertiesPanel from "./PropertiesPanel";
 import PageControls from "./PageControls";
 import PageTabs from "./PageTabs";
 import ExportCodeButton from "./ExportCodeButton";
+import PreviewLauncher from "./PreviewLauncher";
 
 const Builder = () => {
   return (
@@ -14,9 +15,7 @@ const Builder = () => {
           <h1 className="text-xl font-bold">Website Builder</h1>
           <div className="flex items-center gap-2">
             <ExportCodeButton />
-            <a href="#preview" className="text-blue-600 hover:underline text-sm">
-              Preview
-            </a>
+            <PreviewLauncher />
           </div>
         </div>
         
